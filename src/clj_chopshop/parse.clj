@@ -77,7 +77,7 @@
     (while (.find m)
       (doseq [[t k v] pattern-list]
         (when-let [x (.group m k)]
-          (println "Found" k "pattern:" x))))))
+          (prn {:type t :name k :start (.start m) :end (.end m) :token x}))))))
 
 ;; Self test
 (def s (slurp (io/resource "clj_chopshop/parse.clj")))
