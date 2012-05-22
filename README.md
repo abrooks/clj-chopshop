@@ -1,7 +1,8 @@
 # clj-chopshop
 
 > A chop shop must be able to take apart a car without damaging the parts and keep them organized.
-> -- http://en.wikipedia.org/wiki/Chop_shop
+>
+> — http://en.wikipedia.org/wiki/Chop_shop
 
 clj-chopshop is a tool for traversing and transforming Clojure source code.
 
