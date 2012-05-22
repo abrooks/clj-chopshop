@@ -1,0 +1,4 @@
+- show hinted/unhinted method usage
+- list external functions in use
+- show internel/external function usage
+- show fns/vars usage outside of namespace (or none)
