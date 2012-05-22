@@ -27,48 +27,45 @@
 
 ;; Order matters. Some patterns are subsets of other patterns.
 (def pattern-list
-  [;; atoms...
-   "whitespace"     "(?m)\\s+(?-m)"
-   "semicomment"    ";.*"
-   "shebangcomment" "#!.*"
-   "comma"          ","
-   "char"           "\\\\."
-   "string"         STRING
-   "regex"          (str "#" STRING)
-   "number"         NUMBER
+  [[:atom "whitespace"     "(?m)\\s+(?-m)"]
+   [:atom "semicomment"    ";.*"]
+   [:atom "shebangcomment" "#!.*"]
+   [:atom "comma"          ","]
+   [:atom "char"           "\\\\."]
+   [:atom "string"         STRING]
+   [:atom "regex"          (str "#" STRING)]
+   [:atom "number"         NUMBER]
 
-   ;; prefixes...
-   "removal"       "#_"
-   "symbolquote"   "'"
-   "syntaxquote"   "`"
-   "varquote"      "#`"
-   "deref"         "@"
-   "metadata"      "\\^"
-   "unquote"       "~"
-   "unquotesplice" "~@"
-   "eval"          "#="
+   [:pfix "removal"       "#_"]
+   [:pfix "symbolquote"   "'"]
+   [:pfix "syntaxquote"   "`"]
+   [:pfix "varquote"      "#`"]
+   [:pfix "deref"         "@"]
+   [:pfix "unquote"       "~"]
+   [:pfix "unquotesplice" "~@"]
+   [:pfix "eval"          "#="]
 
-   ;; collections...
-   "listliteral"   "\\("
-   "vectorliteral" "\\["
-   "mapliteral"    "\\{"
-   "setliteral"    "#\\{"
-   "fnliteral"     "#\\("
+   [:meta "metadata"      "\\^"]
 
-   ;; collection closers...
-   "closeparen"  "\\)"
-   "closecurly"  "\\}"
-   "closesquare" "\\]"
+   [:coll "listliteral"   "\\("]
+   [:coll "vectorliteral" "\\["]
+   [:coll "mapliteral"    "\\{"]
+   [:coll "setliteral"    "#\\{"]
+   [:coll "fnliteral"     "#\\("]
+
+   [:tail "closeparen"  "\\)"]
+   [:tail "closecurly"  "\\}"]
+   [:tail "closesquare" "\\]"]
 
    ;; Symbol like things...
-   "keyword"     (str ":" SYMBOL)
-   "constructor" (str "#" SYMBOL)
-   "symbol"      SYMBOL
+   [:pfix "constructor" (str "#" SYMBOL)]
+   [:atom "keyword"     (str ":" SYMBOL)]
+   [:atom "symbol"      SYMBOL]
    ])
 
 (def full-pattern
   (->>
-   (for [[k v] (partition 2 pattern-list)]
+   (for [[t k v] pattern-list]
      (str "(?<" k ">" v ")"))
    (flatten)
    (interpose "|")
@@ -76,10 +73,9 @@
 
 (defn run [t]
   (let [^Pattern p (Pattern/compile full-pattern)
-        ^Matcher m (.matcher p t)
-        name-list (partition 2 pattern-list)]
+        ^Matcher m (.matcher p t)]
     (while (.find m)
-      (doseq [[k v] name-list]
+      (doseq [[t k v] pattern-list]
         (when-let [x (.group m k)]
           (println "Found" k "pattern:" x))))))
 
