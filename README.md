@@ -10,7 +10,8 @@ clj-chopshop is a tool for traversing and transforming Clojure source code.
 * structural diffing of Clojure code
 
 ## Usage
-FIXME: write
+
+As of now, this is unusable.
 
 ## License
 
