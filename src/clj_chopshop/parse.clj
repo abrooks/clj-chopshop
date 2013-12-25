@@ -39,7 +39,7 @@
    [:pfix "removal"       "#_"]
    [:pfix "symbolquote"   "'"]
    [:pfix "syntaxquote"   "`"]
-   [:pfix "varquote"      "#`"]
+   [:pfix "varquote"      "#'"]
    [:pfix "deref"         "@"]
    [:pfix "unquote"       "~"]
    [:pfix "unquotesplice" "~@"]
