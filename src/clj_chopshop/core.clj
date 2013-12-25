@@ -14,7 +14,7 @@
     <Comment> = ShebangComment | ReaderRemove | SemiComment
     ShebangComment = '#!' #'.*'
     SemiComment = ';' #'.*'
-    ReaderRemove = '#_' Whitespace* Readable
+    ReaderRemove = '#_' Whitespace? Readable
 
     <Readable> = (List | Vector | Set | Map | Number
                   | Symbol | Keyword | Character | Meta
@@ -43,7 +43,7 @@
     <QUOTE> = '\"'
     <NON-QUOTE-BS> = #'[^\\\\\"]'
     <ESC> = BS (QUOTE | 'n' | 'r' | 't' | BS)
-    String = !BS QUOTE (ESC | NON-QUOTE-BS)* QUOTE
+    String = !(BS|'#') QUOTE (ESC | ('\\\\' #'.') | NON-QUOTE-BS)* QUOTE
 
     <ReaderDispatch> = Regex | Fn | Eval | VarQuote
     Regex = '#' String
