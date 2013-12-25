@@ -1,5 +1,6 @@
 (ns clj-chopshop.core
-  (:require [instaparse.core :as insta]))
+  (:require [instaparse.core :as insta]
+            [clojure.walk :as walk]))
 
 (def clj-parse
   (insta/parser "
@@ -21,6 +22,22 @@
     <MapPairs> = ReadIgnored? Readable ReadIgnored? Readable ReadIgnored?
 "))
 
+(defn reassemble [ptree]
+  (apply str
+         (for [e ptree
+               :when (not (keyword? e))]
+           (if (string? e)
+             e
+             (reassemble e)))))
+
 (comment
-  (clojure.pprint/pprint (clj-parse "#!/bin/bash\n(reduce {(;foo bar\n){}zip zap,herp derp})"))
+  (def t "#!/bin/bash\n(reduce \\c #{a b}\\_ {(;foo bar\n){}zip zap,herp derp})")
+  (clojure.pprint/pprint (clj-parse t))
+  (walk/postwalk #(if (coll? %)
+                    (remove (fn [x]
+                              (and (coll? x)
+                                   (#{:Whitespace :ShebangComment :SemiComment} (first x))))
+                            %)
+                    %)
+                 (clj-parse t))
   )
