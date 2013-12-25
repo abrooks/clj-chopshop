@@ -6,20 +6,62 @@
   (insta/parser "
     <CljSrc> = SrcEnt*
     <SrcEnt> = Readable | ReadIgnored
+
     <ReadIgnored> = Comment | Comma | Whitespace
     Comma = ','
+    Whitespace = #'\\s+'
+
     <Comment> = ShebangComment | ReaderRemove | SemiComment
     ShebangComment = '#!' #'.*'
     SemiComment = ';' #'.*'
-    Whitespace = #'\\s+'
     ReaderRemove = '#_' Whitespace* Readable
-    <Readable> = List | Set | Map | Symbol | Character (* Set ReaderPragma Vector ... *)
-    Set = '#{' SrcEnt* '}'
-    Character = #'\\\\.'
-    Symbol =  #'[A-Za-z0-9_]+' (* TODO: Not this *)
+
+    <Readable> = (List | Vector | Set | Map | Number
+                  | Symbol | Keyword | Character | Meta
+                  | String | Quotes | Unquotes | Deref
+                  | ReaderDispatch | GenSym )
+
+    (* <Number> = Long | Double | Radix *)
+    Number = #'[+-]?[0-9]+(\\.[0-9]+)?'
+
+    <SymSeg> = #'[^\\s,(){}\\[\\]\\\"\\'`#]+'
+    <SymInt> = (SymSeg ('.' SymSeg)*) ('/' SymSeg ('.' SymSeg)*)?
+    Symbol = SymInt
+    Keyword = ':' ':'? SymInt
+
+    GenSym = SymInt '#'
+
     List = '(' SrcEnt* ')'
-    Map = '{' MapPairs* '}'
-    <MapPairs> = ReadIgnored? Readable ReadIgnored? Readable ReadIgnored?
+    Vector = '[' SrcEnt* ']'
+    Map = '{' MapPairs* ReadIgnored* '}'
+    Set = '#{' SrcEnt* '}'
+    <MapPairs> = ReadIgnored* Readable ReadIgnored* Readable
+
+    Character = #'\\\\.'
+
+    <BS> = '\\\\'
+    <QUOTE> = '\"'
+    <NON-QUOTE-BS> = #'[^\\\\\"]'
+    <ESC> = BS (QUOTE | 'n' | 'r' | 't' | BS)
+    String = !BS QUOTE (ESC | NON-QUOTE-BS)* QUOTE
+
+    <ReaderDispatch> = Regex | Fn | Eval | VarQuote
+    Regex = '#' String
+    Fn = '#(' SrcEnt* ')'
+    Eval = '#=(' SrcEnt* ')'
+    VarQuote = '#\\'' <SymInt>
+
+    <Quotes> = SymbolQuote | SyntaxQuote
+    SymbolQuote = \"'\" ReadIgnored* Readable
+    SyntaxQuote = '`' ReadIgnored* Readable
+
+    <Unquotes> = UnquoteSplice | Unquote
+    Unquote = '~' Readable
+    UnquoteSplice = '~@' Readable
+
+    Deref = '@' Readable
+
+    Meta = '^' ReadIgnored* Readable
 "))
 
 (defn reassemble [ptree]
@@ -31,8 +73,9 @@
              (reassemble e)))))
 
 (comment
-  (def t "#!/bin/bash\n(reduce \\c #{a b}\\_ {(;foo bar\n){}zip zap,herp derp})")
-  (clojure.pprint/pprint (clj-parse t))
+  (def t "#!/bin/bash\n(reduce \"foo\\n\" 123 12.34 \\c ^:foo ^ [1 2 3] #{a b}\\_ {(;foo bar\n){}zip zap,herp derp.ferp/derpy.derp} #())")
+  (clojure.pprint/pprint (insta/transform {:String str} (clj-parse t)))
+  (clojure.pprint/pprint (insta/transform {:String str} (clj-parse (slurp "src/clj_chopshop/core.clj"))))
   (walk/postwalk #(if (coll? %)
                     (remove (fn [x]
                               (and (coll? x)
