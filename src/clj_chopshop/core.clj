@@ -3,20 +3,22 @@
 
 (def clj-parse
   (insta/parser "
-    CljSrc = SrcEnt*
-    SrcEnt = Readable | ReadIgnored
-    ReadIgnored = Comment | Comma | Whitespace
+    <CljSrc> = SrcEnt*
+    <SrcEnt> = Readable | ReadIgnored
+    <ReadIgnored> = Comment | Comma | Whitespace
     Comma = ','
-    Comment = ShebangComment | ReaderRemove | SemiComment
+    <Comment> = ShebangComment | ReaderRemove | SemiComment
     ShebangComment = '#!' #'.*'
     SemiComment = ';' #'.*'
     Whitespace = #'\\s+'
     ReaderRemove = '#_' Whitespace* Readable
-    Readable = List | Map | Symbol (* Set ReaderPragma Vector ... *)
+    <Readable> = List | Set | Map | Symbol | Character (* Set ReaderPragma Vector ... *)
+    Set = '#{' SrcEnt* '}'
+    Character = #'\\\\.'
     Symbol =  #'[A-Za-z0-9_]+' (* TODO: Not this *)
     List = '(' SrcEnt* ')'
     Map = '{' MapPairs* '}'
-    MapPairs = ReadIgnored? Readable ReadIgnored? Readable ReadIgnored?
+    <MapPairs> = ReadIgnored? Readable ReadIgnored? Readable ReadIgnored?
 "))
 
 (comment
