@@ -78,7 +78,6 @@
   ([pattern xmap string chunks]
      (let [[chunk tail] (insta/parse pattern string)
            chunk (insta/transform xmap chunk)]
-       #_(prn :cp (count chunk) (count tail))
        (if (and (not (empty? tail))
                 (not= tail string))
          (recur pattern xmap tail (conj chunks chunk))
