@@ -4,7 +4,8 @@
 
 (def clj-parse
   (insta/parser "
-    <CljSrc> = SrcEnt*
+    <CljSrc> = SrcEnt TAIL
+    <TAIL> = #'(?s).*'
     <SrcEnt> = Readable | ReadIgnored
 
     <ReadIgnored> = Comment | Comma | Whitespace
@@ -72,10 +73,23 @@
              e
              (reassemble e)))))
 
+(defn chunk-parse
+  ([pattern xmap string] (chunk-parse pattern xmap string []))
+  ([pattern xmap string chunks]
+     (let [[chunk tail] (insta/parse pattern string)
+           chunk (insta/transform xmap chunk)]
+       #_(prn :cp (count chunk) (count tail))
+       (if (and (not (empty? tail))
+                (not= tail string))
+         (recur pattern xmap tail (conj chunks chunk))
+         (if tail
+           (conj chunks chunk)
+           chunks)))))
+
 (comment
   (def t "#!/bin/bash\n(reduce \"foo\\n\" 123 12.34 \\c ^:foo ^ [1 2 3] #{a b}\\_ {(;foo bar\n){}zip zap,herp derp.ferp/derpy.derp} #())")
   (clojure.pprint/pprint (insta/transform {:String str} (clj-parse t)))
-  (clojure.pprint/pprint (insta/transform {:String str} (clj-parse (slurp "src/clj_chopshop/core.clj"))))
+  (time (chunk-parse clj-parse {:String #(vector :String (apply str %&))} (slurp "../clojure/src/clj/clojure/core.clj")))
   (walk/postwalk #(if (coll? %)
                     (remove (fn [x]
                               (and (coll? x)
