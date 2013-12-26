@@ -85,6 +85,14 @@
            (conj chunks chunk)
            chunks)))))
 
+(defn print-toplevels [ptree]
+  (doseq [s ptree]
+    (when (not= :Whitespace (first s))
+      (if (= :List (first s))
+        (prn (take 2 (keep #(when (= :Symbol (first %)) (second %))
+                           (rest s))))
+        (println (reassemble s))))))
+
 (comment
   (def t "#!/bin/bash\n(reduce \"foo\\n\" 123 12.34 \\c ^:foo ^ [1 2 3] #{a b}\\_ {(;foo bar\n){}zip zap,herp derp.ferp/derpy.derp} #())")
   (clojure.pprint/pprint (insta/transform {:String str} (clj-parse t)))
