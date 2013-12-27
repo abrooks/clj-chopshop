@@ -47,7 +47,7 @@
     <ESC> = BS (QUOTE | 'n' | 'r' | 't' | BS)
     String = !(BS|'#') QUOTE (ESC | ('\\\\' #'.') | NON-QUOTE-BS)* QUOTE
 
-    <ReaderDispatch> = Regex | Fn | Eval | VarQuote
+    <ReaderDispatch> = Regex | Fn | Eval | VarQuote | ReaderLiteral
     Regex = '#' String
     Fn = '#(' SrcEnt* ')'
     Eval = '#=(' SrcEnt* ')'
@@ -62,6 +62,8 @@
     UnquoteSplice = '~@' Readable
 
     Deref = '@' Readable
+
+    ReaderLiteral = '#' SymInt ReadIgnored* Readable
 
     Meta = '^' ReadIgnored* Readable
 "))
@@ -125,14 +127,18 @@
            se/n1))
 
 (comment
-  (def t "#!/bin/bash\n(reduce \"foo\\n\" 123 12.34 \\c ^:foo ^ [1 2 3] #{a b}\\_ {(;foo bar\n){}zip zap,herp derp.ferp/derpy.derp} #())")
-  (clojure.pprint/pprint (insta/transform {:String str} (clj-parse t)))
+  (def t "#!/bin/bash\n(reduce #record [1 2 3] #inst \"2013-10-11 11:23pm\" \"foo\\n\" 123 12.34 \\c ^:foo ^ [1 2 3] #{a b}\\_ {(;foo bar\n){}zip zap,herp derp.ferp/derpy.derp} #())")
+  (clojure.pprint/pprint (chunk-parse clj-parse
+                                      {:String #(vector :String (apply str %&))}
+                                      t))
   (time (def y (chunk-parse clj-parse
                             {:String #(vector :String (apply str %&))}
                             (slurp "../clojure/src/clj/clojure/core.clj"))))
   (time (def y (chunk-parse clj-parse
                             {:String #(vector :String (apply str %&))}
                             (slurp "../lein-voom/src/leiningen/voom.clj"))))
+  (clojure.pprint/pprint y)
+  (print-toplevels y)
   (walk/postwalk #(if (coll? %)
                     (remove (fn [x]
                               (and (coll? x)
