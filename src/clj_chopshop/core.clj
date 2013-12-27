@@ -51,7 +51,7 @@
     Regex = '#' String
     Fn = '#(' SrcEnt* ')'
     Eval = '#=(' SrcEnt* ')'
-    VarQuote = '#\\'' <SymInt>
+    VarQuote = '#\\'' SymInt
 
     <Quotes> = SymbolQuote | SyntaxQuote
     SymbolQuote = \"'\" ReadIgnored* Readable
