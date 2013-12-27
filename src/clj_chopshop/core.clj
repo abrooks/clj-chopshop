@@ -129,9 +129,9 @@
                      list)
            se/n1))
 
-(defn ppnode [keyword & seqex]
-  (se/rep* (se/cap (apply pnode keyword seqex) first)
-           (se/subex (delay (apply ppnode keyword seqex)))
+(defn treewalk-se [pred seqex]
+  (se/rep* seqex
+           (se/and pred (se/subex (delay (treewalk-se pred seqex))))
            se/n1))
 
 (defn print-toplevels2 [ptree]
@@ -160,4 +160,10 @@
   (se/parse (se/rep* (se/cap (se/subex (se/cat :SemiComment se/n*))) se/n1) y)
   (clojure.pprint/pprint (se/parse toplevel-se y))
   (se/parse (ppnode :VarQuote se/n*) y)
+  (clojure.pprint/pprint
+   (se/parse (se/recap (treewalk-se vector?
+                                    (se/cap (pnode :Constructor se/n*)
+                                            first))
+                       #(map (comp (partial apply str) rest) %& ))
+             y))
   )
