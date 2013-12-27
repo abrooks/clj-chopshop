@@ -26,7 +26,7 @@
     (* <Number> = Long | Double | Radix *)
     Number = #'[+-]?[0-9]+(\\.[0-9]+)?'
 
-    <SymSeg> = #'[^\\s,(){}\\[\\]\\\"\\'`#^]+'
+    <SymSeg> = #'[^\\s:;~@.,(){}\\[\\]\\\"\\'`#^]+'
     <SymInt> = (SymSeg ('.' SymSeg)*) ('/' SymSeg ('.' SymSeg)*)?
     Symbol = SymInt
     Keyword = ':' ':'? SymInt
