@@ -77,14 +77,19 @@
 (defn chunk-parse
   ([pattern xmap string] (chunk-parse pattern xmap string []))
   ([pattern xmap string chunks]
-     (let [[chunk tail] (insta/parse pattern string)
-           chunk (insta/transform xmap chunk)]
-       (if (and (not (empty? tail))
-                (not= tail string))
-         (recur pattern xmap tail (conj chunks chunk))
-         (if tail
-           (conj chunks chunk)
-           chunks)))))
+     (let [r (insta/parse pattern string)]
+       (if (map? r)
+         {:error r
+          :chunks chunks
+          :string string}
+         (let [[chunk tail] r
+               chunk (insta/transform xmap chunk)]
+           (if (and (not (empty? tail))
+                    (not= tail string))
+             (recur pattern xmap tail (conj chunks chunk))
+             (if tail
+               (conj chunks chunk)
+               chunks)))))))
 
 (defn print-toplevels [ptree]
   (doseq [s ptree]
