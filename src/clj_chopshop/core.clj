@@ -103,12 +103,19 @@
 (def sym-se
   (pnode :Symbol (se/cap se/n1 first)))
 
-(def list-se
-  (pnode :List se/n*))
+(def str-se
+  (pnode :String (se/cap se/n* (constantly :DOCS))))
+
+(def white-se
+  (pnode :Whitespace se/n*))
 
 (def toplevel-se
   (se/rep* comment-se
-           (se/recap (pnode :List (se/rep 2 (se/cat se/n* sym-se)) se/n*)
+           (se/recap (pnode :List
+                            se/n* sym-se
+                            se/n* sym-se
+                            white-se (se/opt str-se)
+                            se/n*)
                      list)
            se/n1))
 
