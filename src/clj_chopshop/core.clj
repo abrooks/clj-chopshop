@@ -129,6 +129,14 @@
                      list)
            se/n1))
 
+(defn ppnode [keyword & seqex]
+  (se/rep* (se/cap (apply pnode keyword seqex) first)
+           (se/subex (delay (apply ppnode keyword seqex)))
+           se/n1))
+
+(defn print-toplevels2 [ptree]
+  (se/parse toplevel-se ptree))
+
 (comment
   (def t "#!/bin/bash\n(reduce #record [1 2 3] #inst \"2013-10-11 11:23pm\" \"foo\\n\" 123 12.34 \\c ^:foo ^ [1 2 3] #{a b}\\_ {(;foo bar\n){}zip zap,herp derp.ferp/derpy.derp} #())")
   (clojure.pprint/pprint (chunk-parse clj-parse
@@ -151,4 +159,5 @@
                  (clj-parse t))
   (se/parse (se/rep* (se/cap (se/subex (se/cat :SemiComment se/n*))) se/n1) y)
   (clojure.pprint/pprint (se/parse toplevel-se y))
+  (se/parse (ppnode :VarQuote se/n*) y)
   )
