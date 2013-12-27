@@ -21,7 +21,8 @@
     <Readable> = (List | Vector | Set | Map | Number
                   | Symbol | Keyword | Character | Meta
                   | String | Quotes | Unquotes | Deref
-                  | ReaderDispatch | GenSym )
+                  | ReaderDispatch | GenSym
+                  | Method | Constructor)
 
     (* <Number> = Long | Double | Radix *)
     Number = #'[+-]?[0-9]+(\\.[0-9]+)?'
@@ -29,6 +30,8 @@
     <SymSeg> = #'[^\\s:;~@.,(){}\\[\\]\\\"\\'`#^]+'
     <SymInt> = (SymSeg ('.' SymSeg)*) ('/' SymSeg ('.' SymSeg)*)?
     Symbol = SymInt
+    Method = '.' SymSeg
+    Constructor = SymInt '.'
     Keyword = ':' ':'? SymInt
 
     GenSym = SymInt '#'
