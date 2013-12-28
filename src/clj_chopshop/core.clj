@@ -38,9 +38,8 @@
 
     List = '(' SrcEnt* ')'
     Vector = '[' SrcEnt* ']'
-    Map = '{' MapPairs* ReadIgnored* '}'
+    Map = '{' SrcEnt* '}'
     Set = '#{' SrcEnt* '}'
-    <MapPairs> = ReadIgnored* Readable ReadIgnored* Readable
 
     Character = #'\\\\.'
 
