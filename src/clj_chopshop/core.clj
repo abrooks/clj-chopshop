@@ -123,7 +123,7 @@
            (se/recap (pnode :List
                             se/n* sym-se
                             se/n* sym-se
-                            white-se (se/opt str-se)
+                            (se/opt white-se) (se/opt str-se)
                             se/n*)
                      list)
            se/n1))
