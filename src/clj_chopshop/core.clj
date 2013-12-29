@@ -31,7 +31,7 @@
     <SymInt> = (SymSeg ('.' SymSeg)*) ('/' SymSeg ('.' SymSeg)*)?
     Symbol = SymInt
     Method = '.' SymSeg
-    Constructor = SymInt '.' !SymInt
+    Constructor = SymInt '.' !SymSeg
     Keyword = ':' ':'? SymInt
 
     GenSym = SymInt '#'
