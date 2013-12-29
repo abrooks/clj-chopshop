@@ -65,7 +65,7 @@
 
     Deref = '@' Readable
 
-    ReaderLiteral = '#' SymInt ReadIgnored* Readable
+    ReaderLiteral = '#' !'=' SymInt ReadIgnored* Readable
 
     Meta = '^' ReadIgnored* Readable
 "))
@@ -137,7 +137,7 @@
   (se/parse toplevel-se ptree))
 
 (comment
-  (def t "#!/bin/bash\n(reduce #record [1 2 3] #inst \"2013-10-11 11:23pm\" \"foo\\n\" 123 12.34 \\c ^:foo ^ [1 2 3] #{a b}\\_ {(;foo bar\n){}zip zap,herp derp.ferp/derpy.derp} #())")
+  (def t "#!/bin/bash\n(reduce #record [1 2 3] #inst \"2013-10-11 11:23pm\" \"foo\\n\" 123 12.34 \\c ^:foo ^ [1 2 3] #{a b}\\_ {(;foo bar\n){}zip zap,herp derp.ferp/derpy.derp} #() #=(inc 1))")
   (clojure.pprint/pprint (chunk-parse clj-parse
                                       {:String #(vector :String (apply str %&))}
                                       t))
